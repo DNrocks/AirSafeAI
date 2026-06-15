@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>AirSafe</title>
+
+    <!-- ONNX -->
+
+    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+
+    <!-- LEAFLET -->
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet/dist/leaflet.css"
+    />
+
+    <script
+        src="https://unpkg.com/leaflet/dist/leaflet.js">
+    </script>
+
+    <!-- CSS -->
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>🌫️ AirSafe</h1>
+
+        <p class="subtitle">
+            AI-Powered Air Quality Health Advisor
+        </p>
+
+        <div class="card">
+
+            <button onclick="analyzeAir()">
+                Analyze My Air Quality
+            </button>
+
+        </div>
+
+        <div id="loading"></div>
+
+        <div id="result"></div>
+
+        <div id="map"></div>
+
+    </div>
+
+    <div class="credits">
+        Project by Diptarko, Aarav Saxena, Nived, Venkatesh
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
