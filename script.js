@@ -42,7 +42,7 @@ async function loadModel() {
     try {
 
         session = await ort.InferenceSession.create(
-            "model/airsafe.onnx"
+            "airsafe.onnx"
         );
 
         console.log("ONNX model loaded");
