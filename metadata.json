@@ -1,0 +1,152 @@
+{
+  "project": "AirSafe AI",
+  "version": "2.0",
+  "features": [
+    "AQI",
+    "PM10",
+    "PM2_5",
+    "NO2",
+    "SO2",
+    "O3",
+    "Temperature",
+    "Humidity",
+    "WindSpeed"
+  ],
+  "models": {
+    "classifier": {
+      "file": "airsafe_classifier.onnx",
+      "algorithm": "HistGradientBoostingClassifier",
+      "purpose": "Predict environmental health impact class",
+      "classes": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "metrics": {
+        "accuracy": 0.9140154772141015,
+        "balanced_accuracy": 0.4665119346244572,
+        "macro_precision": 0.5941192917054986,
+        "macro_recall": 0.4665119346244572,
+        "macro_f1": 0.4882860897213532
+      }
+    },
+    "regressor": {
+      "file": "airsafe_regressor.onnx",
+      "algorithm": "HistGradientBoostingRegressor",
+      "purpose": "Predict continuous HealthImpactScore",
+      "metrics": {
+        "mae": 1.0524321372670875,
+        "rmse": 2.0636874934271754,
+        "r2": 0.9772701226263355
+      }
+    },
+    "anomaly_detector": {
+      "file": "anomaly_detector.onnx",
+      "algorithm": "IsolationForest",
+      "purpose": "Detect unusual environmental patterns"
+    }
+  },
+  "classifier_feature_importance": [
+    {
+      "feature": "AQI",
+      "importance": 0.26916312754837224,
+      "std": 0.014832795150078789
+    },
+    {
+      "feature": "PM2_5",
+      "importance": 0.1307201823438635,
+      "std": 0.02426605145371013
+    },
+    {
+      "feature": "O3",
+      "importance": 0.08188551969678651,
+      "std": 0.021197283965078473
+    },
+    {
+      "feature": "PM10",
+      "importance": 0.06221227727148172,
+      "std": 0.01276845498295175
+    },
+    {
+      "feature": "NO2",
+      "importance": 0.02358455550401285,
+      "std": 0.016908100388339783
+    },
+    {
+      "feature": "SO2",
+      "importance": -0.004346427208003711,
+      "std": 0.008814670040780938
+    },
+    {
+      "feature": "Humidity",
+      "importance": -0.004709394428751726,
+      "std": 0.011212800006947863
+    },
+    {
+      "feature": "WindSpeed",
+      "importance": -0.005378067049941878,
+      "std": 0.009705742332239904
+    },
+    {
+      "feature": "Temperature",
+      "importance": -0.011341734919244647,
+      "std": 0.01295021122459956
+    }
+  ],
+  "regressor_feature_importance": [
+    {
+      "feature": "AQI",
+      "importance": 1.6729381722264614,
+      "std": 0.062460029496280205
+    },
+    {
+      "feature": "PM2_5",
+      "importance": 0.32310150036623536,
+      "std": 0.021874129245386953
+    },
+    {
+      "feature": "PM10",
+      "importance": 0.18747567052830544,
+      "std": 0.011336161574540937
+    },
+    {
+      "feature": "O3",
+      "importance": 0.17201097137380902,
+      "std": 0.011102335486580404
+    },
+    {
+      "feature": "NO2",
+      "importance": 0.07314454577386419,
+      "std": 0.005300255716063069
+    },
+    {
+      "feature": "SO2",
+      "importance": 0.002567697518735653,
+      "std": 0.000381950325970913
+    },
+    {
+      "feature": "Temperature",
+      "importance": 0.00046283111206213423,
+      "std": 0.00024354900156384868
+    },
+    {
+      "feature": "WindSpeed",
+      "importance": 0.00022592782134981022,
+      "std": 0.0001420806939350752
+    },
+    {
+      "feature": "Humidity",
+      "importance": -0.0001817222614013773,
+      "std": 0.00018822146347313476
+    }
+  ],
+  "notes": [
+    "AQI is retained because removing it caused a major degradation in model performance.",
+    "Classifier training uses RandomOverSampler on the training set only.",
+    "Test data remains untouched.",
+    "HealthImpactScore is the dataset target and should not be presented as a medically validated risk probability.",
+    "Personalized risk will be calculated as a separate application layer."
+  ]
+}

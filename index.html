@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#07111f"
+    >
+
+    <title>AirSafe AI — Air Quality Intelligence</title>
+
+    <!-- =====================================================
+         EXTERNAL LIBRARIES
+         ===================================================== -->
+
+    <!-- ONNX Runtime Web -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js">
+    </script>
+
+    <!-- Chart.js -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/chart.js">
+    </script>
+
+    <!-- Leaflet -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet/dist/leaflet.css"
+    >
+
+    <script
+        src="https://unpkg.com/leaflet/dist/leaflet.js">
+    </script>
+
+    <!-- Our stylesheet -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+</head>
+
+
+<body>
+
+    <!-- =====================================================
+         AMBIENT BACKGROUND
+         ===================================================== -->
+
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+
+
+    <main class="container">
+
+        <!-- =================================================
+             HEADER
+             ================================================= -->
+
+        <header class="hero">
+
+            <div class="hero-icon">
+                ◉
+            </div>
+
+            <div class="hero-content">
+
+                <div class="brand-row">
+
+                    <h1>
+                        AirSafe
+                        <span>AI</span>
+                    </h1>
+
+                    <div class="badge">
+                        AI ENVIRONMENTAL INTELLIGENCE
+                    </div>
+
+                </div>
+
+                <p>
+                    Real-time environmental analysis powered by
+                    machine learning.
+                </p>
+
+            </div>
+
+        </header>
+
+
+        <!-- =================================================
+             SYSTEM STATUS
+             ================================================= -->
+
+        <section class="system-status glass">
+
+            <div class="status-left">
+
+                <span
+                    id="systemStatusDot"
+                    class="status-dot">
+                </span>
+
+                <div>
+
+                    <div
+                        id="systemStatusMain"
+                        class="status-main">
+                        INITIALIZING
+                    </div>
+
+                    <div
+                        id="systemStatusDetail"
+                        class="status-detail">
+                        Loading AI models...
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="model-status">
+
+                <span class="model-chip">
+                    <span class="chip-dot"></span>
+                    CLASSIFIER
+                </span>
+
+                <span class="model-chip">
+                    <span class="chip-dot"></span>
+                    REGRESSOR
+                </span>
+
+                <span class="model-chip">
+                    <span class="chip-dot"></span>
+                    ANOMALY
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             LOCATION SEARCH
+             ================================================= -->
+
+        <section class="search-section">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <p class="section-kicker">
+                        ENVIRONMENT
+                    </p>
+
+                    <h2>
+                        Analyse a location
+                    </h2>
+
+                    <p class="muted">
+                        Enter a city to retrieve live
+                        environmental conditions.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="search-card glass">
+
+                <div class="search-row">
+
+                    <input
+                        id="locationInput"
+                        class="location-input"
+                        type="text"
+                        placeholder="Enter a city..."
+                        autocomplete="off"
+                    >
+
+                    <button
+                        id="locationSearchButton"
+                        class="primary-button"
+                        type="button">
+
+                        Analyse
+
+                    </button>
+
+                </div>
+
+
+                <div class="search-hint">
+
+                    Powered by live environmental data
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             LOCATION
+             ================================================= -->
+
+        <section class="location-section">
+
+            <div class="location-card glass">
+
+                <div class="location-main">
+
+                    <div class="location-icon">
+                        ◎
+                    </div>
+
+                    <div>
+
+                        <p class="section-kicker">
+                            SELECTED LOCATION
+                        </p>
+
+                        <h2 id="locationName">
+                            —
+                        </h2>
+
+                        <p
+                            id="locationDetails"
+                            class="muted">
+                            Search for a location to begin.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="coordinates">
+
+                    <div>
+
+                        <span class="label">
+                            LATITUDE
+                        </span>
+
+                        <span
+                            id="latitudeValue"
+                            class="coordinate-value">
+                            —
+                        </span>
+
+                    </div>
+
+
+                    <div>
+
+                        <span class="label">
+                            LONGITUDE
+                        </span>
+
+                        <span
+                            id="longitudeValue"
+                            class="coordinate-value">
+                            —
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             ENVIRONMENTAL DATA
+             ================================================= -->
+
+        <section class="environment-section">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <p class="section-kicker">
+                        LIVE CONDITIONS
+                    </p>
+
+                    <h2>
+                        Environmental data
+                    </h2>
+
+                </div>
+
+                <div class="badge">
+                    LIVE
+                </div>
+
+            </div>
+
+
+            <div class="metrics-grid">
+
+                <!-- AQI -->
+
+                <div class="metric-card glass primary-metric">
+
+                    <div class="metric-header">
+
+                        <span class="metric-label">
+                            AIR QUALITY INDEX
+                        </span>
+
+                        <span class="metric-icon">
+                            AQ
+                        </span>
+
+                    </div>
+
+                    <div
+                        id="aqiValue"
+                        class="metric-value">
+                        —
+                    </div>
+
+                    <div class="metric-unit">
+                        US AQI
+                    </div>
+
+                </div>
+
+
+                <!-- PM2.5 -->
+
+                <div class="metric-card glass">
+
+                    <div class="metric-header">
+
+                        <span class="metric-label">
+                            PM2.5
+                        </span>
+
+                        <span class="metric-icon">
+                            PM
+                        </span>
+
+                    </div>
+
+                    <div
+                        id="pm25Value"
+                        class="metric-value">
+                        —
+                    </div>
+
+                    <div class="metric-unit">
+                        μg/m³
+                    </div>
+
+                </div>
+
+
+                <!-- PM10 -->
+
+                <div class="metric-card glass">
+
+                    <div class="metric-header">
+
+                        <span class="metric-label">
+                            PM10
+                        </span>
+
+                        <span class="metric-icon">
+                            PM
+                        </span>
+
+                    </div>
+
+                    <div
+                        id="pm10Value"
+                        class="metric-value">
+                        —
+                    </div>
+
+                    <div class="metric-unit">
+                        μg/m³
+                    </div>
+
+                </div>
+
+
+                <!-- NO2 -->
+
+                <div class="metric-card glass">
+
+                    <div class="metric-header">
+
+                        <span class="metric-label">
+                            NO₂
+                        </span>
+
+                        <span class="metric-icon">
+                            NO
+                        </span>
+
+                    </div>
+
+                    <div
+                        id="no2Value"
+                        class="metric-value">
+                        —
+                    </div>
+
+                    <div class="metric-unit">
+                        μg/m³
+                    </div>
+
+                </div>
+
+
+                <!-- O3 -->
+
+                <div class="metric-card glass">
+
+                    <div class="metric-header">
+
+                        <span class="metric-label">
+                            O₃
+                        </span>
+
+                        <span class="metric-icon">
+                            O₃
+                        </span>
+
+                    </div>
+
+                    <div
+                        id="o3Value"
+                        class="metric-value">
+                        —
+                    </div>
+
+                    <div class="metric-unit">
+                        μg/m³
+                    </div>
+
+                </div>
+
+
+                <!-- SO2 -->
+
+                <div class="metric-card glass">
+
+                    <div class="metric-header">
+
+                        <span class="metric-label">
+                            SO₂
+                        </span>
+
+                        <span class="metric-icon">
+                            SO
+                        </span>
+
+                    </div>
+
+                    <div
+                        id="so2Value"
+                        class="metric-value">
+                        —
+                    </div>
+
+                    <div class="metric-unit">
+                        μg/m³
+                    </div>
+
+                </div>
+
+
+                <!-- Temperature -->
+
+                <div class="metric-card glass">
+
+                    <div class="metric-header">
+
+                        <span class="metric-label">
+                            TEMPERATURE
+                        </span>
+
+                        <span class="metric-icon">
+                            °C
+                        </span>
+
+                    </div>
+
+                    <div
+                        id="temperatureValue"
+                        class="metric-value">
+                        —
+                    </div>
+
+                    <div class="metric-unit">
+                        Celsius
+                    </div>
+
+                </div>
+
+
+                <!-- Humidity -->
+
+                <div class="metric-card glass">
+
+                    <div class="metric-header">
+
+                        <span class="metric-label">
+                            HUMIDITY
+                        </span>
+
+                        <span class="metric-icon">
+                            %
+                        </span>
+
+                    </div>
+
+                    <div
+                        id="humidityValue"
+                        class="metric-value">
+                        —
+                    </div>
+
+                    <div class="metric-unit">
+                        Relative humidity
+                    </div>
+
+                </div>
+
+
+                <!-- Wind -->
+
+                <div class="metric-card glass">
+
+                    <div class="metric-header">
+
+                        <span class="metric-label">
+                            WIND SPEED
+                        </span>
+
+                        <span class="metric-icon">
+                            ≋
+                        </span>
+
+                    </div>
+
+                    <div
+                        id="windValue"
+                        class="metric-value">
+                        —
+                    </div>
+
+                    <div class="metric-unit">
+                        km/h
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             AI ANALYSIS
+             ================================================= -->
+
+        <section class="ai-section">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <p class="section-kicker">
+                        MACHINE LEARNING
+                    </p>
+
+                    <h2>
+                        AirSafe AI analysis
+                    </h2>
+
+                    <p class="muted">
+                        Three independent ML models analyse the
+                        current environmental conditions.
+                    </p>
+
+                </div>
+
+                <div class="badge ai-badge">
+                    3 MODELS
+                </div>
+
+            </div>
+
+
+            <div class="ai-grid">
+
+
+                <!-- =========================================
+                     CLASSIFIER
+                     ========================================= -->
+
+                <div class="ai-card glass">
+
+                    <div class="ai-card-header">
+
+                        <div>
+
+                            <p class="section-kicker">
+                                CLASSIFICATION MODEL
+                            </p>
+
+                            <h3>
+                                Environmental safety class
+                            </h3>
+
+                        </div>
+
+                        <div class="model-symbol">
+                            ML
+                        </div>
+
+                    </div>
+
+
+                    <div class="prediction-main">
+
+                        <div
+                            id="classificationValue"
+                            class="prediction-value">
+                            —
+                        </div>
+
+                        <div
+                            id="classificationNumber"
+                            class="prediction-subtitle">
+                            Awaiting analysis
+                        </div>
+
+                    </div>
+
+
+                    <div class="confidence-row">
+
+                        <span>
+                            MODEL CONFIDENCE
+                        </span>
+
+                        <strong
+                            id="classificationConfidence">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="probability-list">
+
+                        <div class="probability-row">
+
+                            <div class="probability-label">
+                                Very Low
+                            </div>
+
+                            <div class="probability-track">
+                                <div
+                                    id="probability0"
+                                    class="probability-fill">
+                                </div>
+                            </div>
+
+                            <div
+                                id="probabilityValue0"
+                                class="probability-value">
+                                0.0%
+                            </div>
+
+                        </div>
+
+
+                        <div class="probability-row">
+
+                            <div class="probability-label">
+                                Low
+                            </div>
+
+                            <div class="probability-track">
+                                <div
+                                    id="probability1"
+                                    class="probability-fill">
+                                </div>
+                            </div>
+
+                            <div
+                                id="probabilityValue1"
+                                class="probability-value">
+                                0.0%
+                            </div>
+
+                        </div>
+
+
+                        <div class="probability-row">
+
+                            <div class="probability-label">
+                                Moderate
+                            </div>
+
+                            <div class="probability-track">
+                                <div
+                                    id="probability2"
+                                    class="probability-fill">
+                                </div>
+                            </div>
+
+                            <div
+                                id="probabilityValue2"
+                                class="probability-value">
+                                0.0%
+                            </div>
+
+                        </div>
+
+
+                        <div class="probability-row">
+
+                            <div class="probability-label">
+                                High
+                            </div>
+
+                            <div class="probability-track">
+                                <div
+                                    id="probability3"
+                                    class="probability-fill">
+                                </div>
+                            </div>
+
+                            <div
+                                id="probabilityValue3"
+                                class="probability-value">
+                                0.0%
+                            </div>
+
+                        </div>
+
+
+                        <div class="probability-row">
+
+                            <div class="probability-label">
+                                Very High
+                            </div>
+
+                            <div class="probability-track">
+                                <div
+                                    id="probability4"
+                                    class="probability-fill">
+                                </div>
+                            </div>
+
+                            <div
+                                id="probabilityValue4"
+                                class="probability-value">
+                                0.0%
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================================
+                     REGRESSOR
+                     ========================================= -->
+
+                <div class="ai-card glass">
+
+                    <div class="ai-card-header">
+
+                        <div>
+
+                            <p class="section-kicker">
+                                REGRESSION MODEL
+                            </p>
+
+                            <h3>
+                                Health impact score
+                            </h3>
+
+                        </div>
+
+                        <div class="model-symbol">
+                            ML
+                        </div>
+
+                    </div>
+
+
+                    <div class="score-container">
+
+                        <div
+                            id="healthImpactScore"
+                            class="large-score">
+                            —
+                        </div>
+
+                        <div class="score-scale">
+                            <span>0</span>
+                            <div class="score-track">
+                                <div
+                                    class="score-fill"
+                                    id="scoreFill">
+                                </div>
+                            </div>
+                            <span>100</span>
+                        </div>
+
+                    </div>
+
+
+                    <p class="analysis-description">
+                        Continuous prediction generated by
+                        the trained regression model from the
+                        nine environmental features.
+                    </p>
+
+
+                    <div class="model-info">
+
+                        <div>
+                            <span class="label">
+                                MODEL
+                            </span>
+
+                            <strong>
+                                HistGradientBoosting
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span class="label">
+                                R²
+                            </span>
+
+                            <strong>
+                                0.977
+                            </strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================================
+                     ANOMALY DETECTOR
+                     ========================================= -->
+
+                <div class="ai-card glass anomaly-card">
+
+                    <div class="ai-card-header">
+
+                        <div>
+
+                            <p class="section-kicker">
+                                UNSUPERVISED MODEL
+                            </p>
+
+                            <h3>
+                                Environmental anomaly
+                            </h3>
+
+                        </div>
+
+                        <div class="model-symbol">
+                            ML
+                        </div>
+
+                    </div>
+
+
+                    <div class="anomaly-result">
+
+                        <div
+                            id="anomalyValue"
+                            class="anomaly-value">
+                            —
+                        </div>
+
+                        <div class="anomaly-description">
+                            Isolation Forest analysis
+                        </div>
+
+                    </div>
+
+
+                    <div class="anomaly-score">
+
+                        <span>
+                            ANOMALY SCORE
+                        </span>
+
+                        <strong id="anomalyScore">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <p class="analysis-description">
+                        Detects environmental conditions that
+                        differ substantially from patterns
+                        observed during model training.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- =================================================
+            PERSONALISATION
+            ================================================= -->
+
+        <section class="personalisation-section">
+
+            <div class="section-heading">
+                <div>
+                    <p class="section-kicker">
+                        PERSONALISATION
+                    </p>
+
+                    <h2>
+                        Personalised safety assessment
+                    </h2>
+
+                    <p class="muted">
+                        Adjust the environmental assessment according
+                        to your activity and exposure profile.
+                    </p>
+                </div>
+
+                <div class="badge">
+                    USER PROFILE
+                </div>
+            </div>
+
+
+            <div class="personalisation-grid">
+
+                <!-- USER PROFILE -->
+
+                <div class="personalisation-card glass">
+
+                    <div class="ai-card-header">
+
+                        <div>
+                            <p class="section-kicker">
+                                YOUR PROFILE
+                            </p>
+
+                            <h3>
+                                Exposure factors
+                            </h3>
+                        </div>
+
+                        <div class="model-symbol">
+                            +
+                        </div>
+
+                    </div>
+
+
+                    <!-- AGE -->
+
+                    <div class="personalisation-field">
+
+                        <label for="personalAge">
+                            Age group
+                        </label>
+
+                        <select id="personalAge">
+
+                            <option value="adult">
+                                Adult
+                            </option>
+
+                            <option value="young">
+                                Under 18
+                            </option>
+
+                            <option value="senior">
+                                60+
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- ACTIVITY -->
+
+                    <div class="personalisation-field">
+
+                        <label for="personalActivity">
+                            Outdoor activity
+                        </label>
+
+                        <select id="personalActivity">
+
+                            <option value="low">
+                                Low — mostly indoors
+                            </option>
+
+                            <option value="normal" selected>
+                                Normal — regular activity
+                            </option>
+
+                            <option value="high">
+                                High — exercise / strenuous activity
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- EXPOSURE -->
+
+                    <div class="personalisation-field">
+
+                        <label for="personalExposure">
+                            Time outdoors
+                        </label>
+
+                        <select id="personalExposure">
+
+                            <option value="short">
+                                Less than 1 hour
+                            </option>
+
+                            <option value="medium" selected>
+                                1–3 hours
+                            </option>
+
+                            <option value="long">
+                                More than 3 hours
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- SENSITIVITY -->
+
+                    <div class="personalisation-field">
+
+                        <label for="personalSensitivity">
+                            Air sensitivity
+                        </label>
+
+                        <select id="personalSensitivity">
+
+                            <option value="normal" selected>
+                                Typical
+                            </option>
+
+                            <option value="sensitive">
+                                More sensitive
+                            </option>
+
+                            <option value="high">
+                                Highly sensitive
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <button
+                        id="personaliseButton"
+                        class="primary-button personalisation-button"
+                        type="button">
+
+                        Calculate personalised assessment
+
+                    </button>
+
+                </div>
+
+
+                <!-- PERSONALIZED RESULT -->
+
+                <div class="personalisation-card glass">
+
+                    <div class="ai-card-header">
+
+                        <div>
+                            <p class="section-kicker">
+                                PERSONALIZED RESULT
+                            </p>
+
+                            <h3>
+                                Your environmental assessment
+                            </h3>
+                        </div>
+
+                        <div class="model-symbol">
+                            AI
+                        </div>
+
+                    </div>
+
+
+                    <div class="personal-result-main">
+
+                        <div
+                            id="personalisedScore"
+                            class="large-score">
+
+                            —
+
+                        </div>
+
+                        <div class="personal-result-label">
+                            PERSONALISED EXPOSURE INDEX
+                        </div>
+
+                    </div>
+
+
+                    <div class="score-scale">
+
+                        <span>0</span>
+
+                        <div class="score-track">
+
+                            <div
+                                id="personalisedScoreFill"
+                                class="score-fill">
+                            </div>
+
+                        </div>
+
+                        <span>100</span>
+
+                    </div>
+
+
+                    <div class="personal-result-status">
+
+                        <span class="label">
+                            ASSESSMENT
+                        </span>
+
+                        <strong id="personalisedStatus">
+                            Awaiting profile
+                        </strong>
+
+                    </div>
+
+
+                    <p
+                        id="personalisedExplanation"
+                        class="analysis-description">
+
+                        Complete your profile and analyse a location
+                        to generate a personalised assessment.
+
+                    </p>
+
+
+                    <div class="personal-result-note">
+
+                        This is an application-level estimate combining
+                        the environmental AI output with your selected
+                        exposure factors. It is not a medical diagnosis.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+                <!-- ============================================================
+            WHAT-IF ENVIRONMENTAL SIMULATION
+            ============================================================ -->
+
+        <section class="section simulation-section" id="simulation">
+
+            <div class="section-header">
+                <div>
+                    <span class="section-kicker">AI SIMULATION</span>
+                    <h2>What-If Environmental Simulation</h2>
+                    <p>
+                        Explore how changes in environmental conditions could
+                        affect AirSafe's AI predictions.
+                    </p>
+                </div>
+            </div>
+
+
+            <div class="simulation-container">
+
+                <!-- --------------------------------------------------------
+                    SIMULATION CONTROLS
+                    -------------------------------------------------------- -->
+
+                <div class="simulation-controls">
+
+                    <div class="simulation-card-header">
+                        <h3>Adjust Environmental Conditions</h3>
+                        <p>
+                            Modify one or more values and run the AI simulation.
+                            Your current environmental data will be used as the
+                            starting point.
+                        </p>
+                    </div>
+
+
+                    <div class="simulation-grid">
+
+                        <!-- AQI -->
+                        <div class="simulation-input-group">
+                            <label for="sim-aqi">
+                                AQI
+                                <span class="simulation-value" id="sim-aqi-value">—</span>
+                            </label>
+
+                            <input
+                                type="range"
+                                id="sim-aqi"
+                                min="0"
+                                max="500"
+                                step="1"
+                                value="50"
+                            >
+                        </div>
+
+
+                        <!-- PM2.5 -->
+                        <div class="simulation-input-group">
+                            <label for="sim-pm25">
+                                PM2.5
+                                <span class="simulation-value" id="sim-pm25-value">—</span>
+                            </label>
+
+                            <input
+                                type="range"
+                                id="sim-pm25"
+                                min="0"
+                                max="500"
+                                step="0.1"
+                                value="10"
+                            >
+                        </div>
+
+
+                        <!-- PM10 -->
+                        <div class="simulation-input-group">
+                            <label for="sim-pm10">
+                                PM10
+                                <span class="simulation-value" id="sim-pm10-value">—</span>
+                            </label>
+
+                            <input
+                                type="range"
+                                id="sim-pm10"
+                                min="0"
+                                max="500"
+                                step="0.1"
+                                value="20"
+                            >
+                        </div>
+
+
+                        <!-- NO2 -->
+                        <div class="simulation-input-group">
+                            <label for="sim-no2">
+                                NO₂
+                                <span class="simulation-value" id="sim-no2-value">—</span>
+                            </label>
+
+                            <input
+                                type="range"
+                                id="sim-no2"
+                                min="0"
+                                max="300"
+                                step="0.1"
+                                value="20"
+                            >
+                        </div>
+
+
+                        <!-- SO2 -->
+                        <div class="simulation-input-group">
+                            <label for="sim-so2">
+                                SO₂
+                                <span class="simulation-value" id="sim-so2-value">—</span>
+                            </label>
+
+                            <input
+                                type="range"
+                                id="sim-so2"
+                                min="0"
+                                max="300"
+                                step="0.1"
+                                value="5"
+                            >
+                        </div>
+
+
+                        <!-- O3 -->
+                        <div class="simulation-input-group">
+                            <label for="sim-o3">
+                                O₃
+                                <span class="simulation-value" id="sim-o3-value">—</span>
+                            </label>
+
+                            <input
+                                type="range"
+                                id="sim-o3"
+                                min="0"
+                                max="300"
+                                step="0.1"
+                                value="50"
+                            >
+                        </div>
+
+
+                        <!-- Temperature -->
+                        <div class="simulation-input-group">
+                            <label for="sim-temperature">
+                                Temperature
+                                <span class="simulation-value" id="sim-temperature-value">—</span>
+                            </label>
+
+                            <input
+                                type="range"
+                                id="sim-temperature"
+                                min="-10"
+                                max="55"
+                                step="0.1"
+                                value="25"
+                            >
+                        </div>
+
+
+                        <!-- Humidity -->
+                        <div class="simulation-input-group">
+                            <label for="sim-humidity">
+                                Humidity
+                                <span class="simulation-value" id="sim-humidity-value">—</span>
+                            </label>
+
+                            <input
+                                type="range"
+                                id="sim-humidity"
+                                min="0"
+                                max="100"
+                                step="1"
+                                value="50"
+                            >
+                        </div>
+
+
+                        <!-- Wind Speed -->
+                        <div class="simulation-input-group">
+                            <label for="sim-windspeed">
+                                Wind Speed
+                                <span class="simulation-value" id="sim-windspeed-value">—</span>
+                            </label>
+
+                            <input
+                                type="range"
+                                id="sim-windspeed"
+                                min="0"
+                                max="100"
+                                step="0.1"
+                                value="10"
+                            >
+                        </div>
+
+                    </div>
+
+
+                    <div class="simulation-actions">
+
+                        <button
+                            type="button"
+                            id="run-simulation-btn"
+                            class="primary-button"
+                        >
+                            Run AI Simulation
+                        </button>
+
+                        <button
+                            type="button"
+                            id="reset-simulation-btn"
+                            class="secondary-button"
+                        >
+                            Reset to Current Conditions
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- --------------------------------------------------------
+                    SIMULATION RESULTS
+                    -------------------------------------------------------- -->
+
+                <div
+                    class="simulation-results"
+                    id="simulation-results"
+                >
+
+                    <div class="simulation-results-header">
+                        <h3>Simulation Results</h3>
+
+                        <span
+                            class="simulation-status"
+                            id="simulation-status"
+                        >
+                            Waiting for simulation
+                        </span>
+                    </div>
+
+
+                    <div class="simulation-comparison">
+
+                        <!-- CURRENT -->
+                        <div class="simulation-result-card">
+
+                            <div class="result-card-label">
+                                CURRENT CONDITIONS
+                            </div>
+
+                            <div class="simulation-result-row">
+                                <span>Safety Classification</span>
+                                <strong id="sim-current-class">
+                                    —
+                                </strong>
+                            </div>
+
+                            <div class="simulation-result-row">
+                                <span>AI Confidence</span>
+                                <strong id="sim-current-confidence">
+                                    —
+                                </strong>
+                            </div>
+
+                            <div class="simulation-result-row">
+                                <span>Health Impact Score</span>
+                                <strong id="sim-current-score">
+                                    —
+                                </strong>
+                            </div>
+
+                            <div class="simulation-result-row">
+                                <span>Anomaly Status</span>
+                                <strong id="sim-current-anomaly">
+                                    —
+                                </strong>
+                            </div>
+
+                        </div>
+
+
+                        <!-- SIMULATED -->
+                        <div class="simulation-result-card simulated">
+
+                            <div class="result-card-label">
+                                SIMULATED CONDITIONS
+                            </div>
+
+                            <div class="simulation-result-row">
+                                <span>Safety Classification</span>
+                                <strong id="sim-result-class">
+                                    —
+                                </strong>
+                            </div>
+
+                            <div class="simulation-result-row">
+                                <span>AI Confidence</span>
+                                <strong id="sim-result-confidence">
+                                    —
+                                </strong>
+                            </div>
+
+                            <div class="simulation-result-row">
+                                <span>Health Impact Score</span>
+                                <strong id="sim-result-score">
+                                    —
+                                </strong>
+                            </div>
+
+                            <div class="simulation-result-row">
+                                <span>Anomaly Status</span>
+                                <strong id="sim-result-anomaly">
+                                    —
+                                </strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- IMPACT SUMMARY -->
+
+                    <div
+                        class="simulation-impact"
+                        id="simulation-impact"
+                    >
+
+                        <div class="simulation-impact-title">
+                            Simulation Impact
+                        </div>
+
+                        <p id="simulation-impact-text">
+                            Adjust the environmental conditions and run the
+                            simulation to see how the AI prediction changes.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+        <!-- =================================================
+             MODEL EXPLAINABILITY
+             ================================================= -->
+
+        <section class="explain-section">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <p class="section-kicker">
+                        MODEL INTERPRETATION
+                    </p>
+
+                    <h2>
+                        Why did the model decide this?
+                    </h2>
+
+                    <p class="muted">
+                        Feature importance will show which
+                        environmental variables influence the
+                        prediction most strongly.
+                    </p>
+
+                </div>
+
+                <div class="badge">
+                    EXPLAINABLE AI
+                </div>
+
+            </div>
+
+
+            <div class="explain-grid">
+
+                <div class="chart-card glass">
+
+                    <canvas
+                        id="featureImportanceChart">
+                    </canvas>
+
+                    <div
+                        id="featureImportanceEmpty"
+                        class="empty-state">
+
+                        Feature importance will appear here
+                        after analysis.
+
+                    </div>
+
+                </div>
+
+
+                <div class="explain-summary glass">
+
+                    <p class="section-kicker">
+                        AI INTERPRETATION
+                    </p>
+
+                    <h3>
+                        Model reasoning
+                    </h3>
+
+                    <p
+                        id="modelReasoning"
+                        class="muted">
+                        Analyse a location to generate an
+                        explanation of the model output.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             MAP
+             ================================================= -->
+
+        <section class="map-section">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <p class="section-kicker">
+                        GEOSPATIAL VIEW
+                    </p>
+
+                    <h2>
+                        Environmental location
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="map"
+                class="map-container glass">
+
+                <div class="map-placeholder">
+
+                    <span>
+                        ◎
+                    </span>
+
+                    <p>
+                        Location map will appear after
+                        selecting a location.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             AI ASSISTANT
+             ================================================= -->
+
+        <section class="assistant-section">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <p class="section-kicker">
+                        GENERATIVE AI
+                    </p>
+
+                    <h2>
+                        AirSafe AI Assistant
+                    </h2>
+
+                    <p class="muted">
+                        Ask questions about the current
+                        environmental analysis.
+                    </p>
+
+                </div>
+
+                <div class="badge ai-badge">
+                    GEMINI
+                </div>
+
+            </div>
+
+
+            <div class="assistant-card glass">
+
+                <div
+                    id="faqMessages"
+                    class="assistant-messages">
+
+                    <div class="assistant-message bot">
+
+                        <div class="message-label">
+                            AIRSAFE AI
+                        </div>
+
+                        <p>
+                            Analyse a location first. Once
+                            environmental data and the ML
+                            predictions are available, you can
+                            ask me about the results.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="assistant-suggestions">
+
+                    <button
+                        class="assistant-chip"
+                        type="button">
+                        Explain my risk
+                    </button>
+
+                    <button
+                        class="assistant-chip"
+                        type="button">
+                        What is causing the risk?
+                    </button>
+
+                    <button
+                        class="assistant-chip"
+                        type="button">
+                        Explain the AI prediction
+                    </button>
+
+                </div>
+
+
+                <div class="assistant-input-row">
+
+                    <input
+                        id="faqInput"
+                        class="assistant-input"
+                        type="text"
+                        placeholder="Ask AirSafe AI..."
+                        autocomplete="off"
+                    >
+
+                    <button
+                        id="faqSend"
+                        class="primary-button"
+                        type="button">
+
+                        Ask AI
+
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="faqStatus"
+                    class="assistant-status">
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             FOOTER
+             ================================================= -->
+
+        <footer class="credits">
+
+            <span>
+                AirSafe AI
+            </span>
+
+            <span>
+                •
+            </span>
+
+            <span>
+                AI Environmental Intelligence Project
+            </span>
+
+        </footer>
+
+    </main>
+
+
+    <!-- =====================================================
+         APPLICATION JAVASCRIPT
+         ===================================================== -->
+
+    <script src="app.js"></script>
+
+</body>
+
+</html>
