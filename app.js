@@ -91,7 +91,7 @@ const CONFIG = {
 const GEMINI_CONFIG = {
 
     API_KEY:
-        "AQ.Ab8RN6KoEYecmp3wei0SnVnaaXi6yieSLftkzg3tXcPC1F6Hsg",
+        "AQ.Ab8RN6JAAzjsHoZzOLMd7wo0v7VYiuqqZUAzmRNtsAUdrSZAsg",
 
     MODEL:
         "gemini-3.5-flash-lite",
